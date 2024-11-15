@@ -1,11 +1,22 @@
 const express = require('express');
-const redisClient = require('./config/redis');
 const urlRoutes = require('./routes/urlRoutes');
+const redisClient = require('./config/redis');
 
 const app = express();
 const PORT = 3000;
 
-// Middleware to parse JSON
+(async () => {
+    try {
+        // Connect to Redis
+        await redisClient.connect();
+        console.log('Connected to Redis');
+    } catch (err) {
+        console.error('Redis connection error:', err);
+        process.exit(1); // Exit the process if Redis connection fails
+    }
+})();
+
+// payload to parse JSON
 app.use(express.json());
 
 // Load routes
@@ -16,8 +27,3 @@ app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
 
-// Check Redis connection
-redisClient.on('connect', () => console.log('Connected to Redis'));
-redisClient.on('error', (err) => console.error('Redis connection error:', err));
-
-// console.log("RUNNING")
