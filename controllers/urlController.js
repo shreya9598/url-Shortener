@@ -12,6 +12,7 @@ async function shortenUrl(req, res) {
 
     try {
         const shortUrl = await urlService.shortenUrl(url);
+        console.log("shortUrl   ", shortUrl);
         return res.status(200).json({ shortUrl });
     } catch (error) {
         return res.status(500).json({ error: 'Error shortening URL' });

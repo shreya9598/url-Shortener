@@ -1,9 +1,15 @@
 const express = require('express');
 const urlRoutes = require('./routes/urlRoutes');
 const redisClient = require('./config/redis');
+const cors = require("cors");
 
 const app = express();
 const PORT = 3000;
+
+// Allow requests from your frontend origin
+app.use(cors({
+    origin: "http://localhost:5174"
+}));
 
 (async () => {
     try {
