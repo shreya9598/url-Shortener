@@ -4,14 +4,14 @@ const urlService = require('../services/urlService');
  * Controller to shorten a URL.
  */
 async function shortenUrl(req, res) {
-    const { url } = req.body;
+    const { url, customCode } = req.body;
 
     if (!url) {
         return res.status(400).json({ error: 'URL is required' });
     }
 
     try {
-        const shortUrl = await urlService.shortenUrl(url);
+        const shortUrl = await urlService.shortenUrl(url, customCode);
         console.log("shortUrl   ", shortUrl);
         return res.status(200).json({ shortUrl });
     } catch (error) {
