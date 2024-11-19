@@ -12,17 +12,69 @@ async function shortenUrl(originalUrl, customCode = null) {
         }
     }
 
-    await redisClient.setEx(shortCode, EXPIRATION_TIME, originalUrl);
+    const urlData = {
+        originalUrl,
+        clicks: 0,
+        metadata: [],
+    };
+
+    await redisClient.setEx(shortCode, EXPIRATION_TIME, JSON.stringify(urlData));
     return `http://localhost:3000/${shortCode}`;
+
+    // await redisClient.setEx(shortCode, EXPIRATION_TIME, originalUrl);
+    // return `http://localhost:3000/${shortCode}`;
 }
 
 async function getOriginalUrl(shortCode) {
     return await redisClient.get(shortCode);
 }
 
+async function getOriginalUrlAndTrack(shortCode, ip) {
+    try {
+        const data = await redisClient.get(shortCode);
+
+        if (!data) return null;
+
+        const urlData = JSON.parse(data);
+
+        // Increment click count
+        urlData.clicks += 1;
+
+        // Save updated data back to Redis
+        await redisClient.setEx(shortCode, EXPIRATION_TIME, JSON.stringify(urlData));
+
+        return urlData.originalUrl;
+    } catch (error) {
+        console.error("Error in getOriginalUrlAndTrack:", error);
+        throw error;
+    }
+}
+
+async function getAnalytics(shortCode) {
+    try {
+        const data = await redisClient.get(shortCode);
+
+        if (!data) return null;
+
+        const urlData = JSON.parse(data);
+        return {
+            clicks: urlData.clicks,
+        };
+    } catch (error) {
+        console.error("Error in getAnalytics:", error);
+        throw error;
+    }
+}
+
 module.exports = {
     shortenUrl,
-    getOriginalUrl,
+    getOriginalUrlAndTrack,
+    getAnalytics,
 };
+
+// module.exports = {
+//     shortenUrl,
+//     getOriginalUrl,
+// };
 
 
